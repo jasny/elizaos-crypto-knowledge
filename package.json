@@ -1,5 +1,5 @@
 {
-    "name": "@elizaos-plugins/plugin-token-knownledge",
+    "name": "@elizaos-plugins/plugin-crypto-knownledge",
     "version": "0.1.0-alpha.1",
     "main": "dist/index.js",
     "type": "module",

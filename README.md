@@ -1,4 +1,4 @@
-# @elizaos/plugin-token-knowledge
+# @elizaos/plugin-crypto-knowledge
 
 A plugin for ElizaOS that provides rich, contextual knowledge about cryptocurrencies and tokens using data from the CoinMarketCap API.
 
@@ -15,7 +15,7 @@ Unlike [`@elizaos/plugin-coinmarketcap`](https://github.com/elizaos-plugins/plug
 ## Installation
 
 ```bash
-npm install @elizaos/plugin-token-knowledge
+npm install @elizaos/plugin-crypto-knowledge
 ```
 
 ## Configuration
@@ -28,16 +28,16 @@ npm install @elizaos/plugin-token-knowledge
 
    ```bash
    COINMARKETCAP_API_KEY=your_api_key
-   COINMARKETCAP_API_URL=https://pro-api.coinmarketcap.com
+   COINMARKETCAP_API_URL=https://pro-api.coinmarketcap.com # (optional, typically not needed)
    ```
 
 3. **Register the plugin**
 
    ```ts
-   import { tokenKnowledgePlugin } from "@elizaos/plugin-token-knowledge";
+   import { cryptoKnowledgePlugin } from "@elizaos/plugin-crypto-knowledge";
 
    export const plugins = [
-     tokenKnowledgePlugin,
+     cryptoKnowledgePlugin,
      // ... other plugins
    ];
    ```
@@ -48,8 +48,7 @@ npm install @elizaos/plugin-token-knowledge
    {
      "settings": {
        "cmc_top": 5000
-     },
-     "plugins": ["token-knowledge"]
+     }
    }
    ```
 
@@ -57,7 +56,7 @@ npm install @elizaos/plugin-token-knowledge
 
 ## How It Differs from `@elizaos/plugin-coinmarketcap`
 
-| Feature                     | `plugin-token-knowledge`              | `plugin-coinmarketcap`                         |
+| Feature                     | `plugin-crypto-knowledge`             | `plugin-coinmarketcap`                         |
 | --------------------------- |---------------------------------------| ---------------------------------------------- |
 | Data source                 | CoinMarketCap                         | CoinMarketCap                                  |
 | Memory integration          | ✅ Yes (with embeddings)               | ❌ No                                           |
