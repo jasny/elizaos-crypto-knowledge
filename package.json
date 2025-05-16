@@ -16,14 +16,14 @@
         "tsup": "^8.3.5"
     },
     "peerDependencies": {
-      "@elizaos/core": "^0.25.9"
+        "@elizaos/core": "^0.25.9"
     },
     "scripts": {
         "build": "tsup --format esm --dts",
         "dev": "tsup --format esm --dts --watch",
         "clean": "rm -rf dist",
         "lint": "biome lint .",
-        "lint:fix": "biome check --apply .",
+        "lint:fix": "biome check --write .",
         "format": "biome format .",
         "format:fix": "biome format --write .",
         "test": "vitest run",

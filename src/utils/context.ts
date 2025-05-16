@@ -1,25 +1,29 @@
 import {
-  Content,
-  formatMessages,
-  getActorDetails,
-  generateObject,
-  IAgentRuntime,
-  Memory,
-  ModelClass,
-  State, embed, elizaLogger
-} from "@elizaos/core"
-import { z } from "zod"
-import { BasicInfo } from "../types.ts"
+    Content,
+    formatMessages,
+    getActorDetails,
+    generateObject,
+    IAgentRuntime,
+    Memory,
+    ModelClass,
+    State,
+    embed,
+    elizaLogger,
+} from '@elizaos/core';
+import { z } from 'zod';
+import { BasicInfo } from '../types.ts';
 
 const tokenSchema = z.object({
-  symbol: z.string().nullable().describe('The symbol of the cryptocurrency'),
-  name: z.string().nullable().describe('The project name of the cryptocurrency'),
+    symbol: z.string().nullable().describe('The symbol of the cryptocurrency'),
+    name: z.string().nullable().describe('The project name of the cryptocurrency'),
 });
 export type Token = z.infer<typeof tokenSchema>;
 
-const tokenListSchema = z.array(tokenSchema).describe('List of cryptocurrencies or crypto tokens discussed by the user');
+const tokenListSchema = z
+    .array(tokenSchema)
+    .describe('List of cryptocurrencies or crypto tokens discussed by the user');
 const tokenListResultSchema = z.object({
-  tokens: tokenListSchema,
+    tokens: tokenListSchema,
 });
 export type TokenList = z.infer<typeof tokenListSchema>;
 type TokenListResultContext = z.infer<typeof tokenListResultSchema> & Content;
@@ -82,33 +86,40 @@ Example:
   ]
 }
 \`\`\`
-`
+`;
 
 function isTokenListResult(obj: any): obj is TokenListResultContext {
-  return tokenListResultSchema.safeParse(obj).success;
+    return tokenListResultSchema.safeParse(obj).success;
 }
 
 function isToken(obj: any): obj is Token {
-  return tokenSchema.safeParse(obj).success;
+    return tokenSchema.safeParse(obj).success;
 }
 
-export async function getTokensFromContext(runtime: IAgentRuntime, message: Memory, state: State): Promise<TokenList> {
-  const actors = await getActorDetails({ runtime: runtime, roomId: message.roomId });
+export async function getTokensFromContext(
+    runtime: IAgentRuntime,
+    message: Memory,
+    state: State
+): Promise<TokenList> {
+    const actors = await getActorDetails({ runtime: runtime, roomId: message.roomId });
 
-  const context = template.replace('{{recentMessages}}', formatMessages({ messages: state?.recentMessagesData ?? [], actors }));
+    const context = template.replace(
+        '{{recentMessages}}',
+        formatMessages({ messages: state?.recentMessagesData ?? [], actors })
+    );
 
-  const result = await generateObject({
-    runtime,
-    context,
-    modelClass: ModelClass.LARGE,
-    schema: tokenListResultSchema as any, // zod compatibility issue
-  });
+    const result = await generateObject({
+        runtime,
+        context,
+        modelClass: ModelClass.LARGE,
+        schema: tokenListResultSchema as any, // zod compatibility issue
+    });
 
-  if (!isTokenListResult(result.object)) {
-    throw new Error("Invalid token list response format");
-  }
+    if (!isTokenListResult(result.object)) {
+        throw new Error('Invalid token list response format');
+    }
 
-  return result.object.tokens;
+    return result.object.tokens;
 }
 
 const tokenSymbolTemplate = `
@@ -123,39 +134,46 @@ If there multiple possibilities which are equally possible, pick the one with th
 If it unlikely to be one of the mentioned projects, respond with null.
 `;
 
-export async function figureOutTokenSymbol(runtime: IAgentRuntime, token: string): Promise<Token | null> {
-  const cached = await runtime.cacheManager.get<BasicInfo>(`token-by-name:${token.toLowerCase()}`);
-  if (cached) {
-    return { name: cached.name, symbol: cached.symbol };
-  }
+export async function figureOutTokenSymbol(
+    runtime: IAgentRuntime,
+    token: string
+): Promise<Token | null> {
+    const cached = await runtime.cacheManager.get<BasicInfo>(
+        `token-by-name:${token.toLowerCase()}`
+    );
+    if (cached) {
+        return { name: cached.name, symbol: cached.symbol };
+    }
 
-  elizaLogger.log(`Figuring out token symbol for ${token}`);
+    elizaLogger.log(`Figuring out token symbol for ${token}`);
 
-  const embeddings = await embed(runtime, `is ${token.toLowerCase()} known on coinmarketcap?`);
+    const embeddings = await embed(runtime, `is ${token.toLowerCase()} known on coinmarketcap?`);
 
-  const memories = await runtime.getMemoryManager('cmc_tokens').searchMemoriesByEmbedding(embeddings, {
-    roomId: runtime.agentId,
-    count: 5,
-  });
+    const memories = await runtime
+        .getMemoryManager('cmc_tokens')
+        .searchMemoriesByEmbedding(embeddings, {
+            roomId: runtime.agentId,
+            count: 5,
+        });
 
-  const knowledge = memories.map((memory) => ` - ${memory.content.text}`).join('\n');
+    const knowledge = memories.map((memory) => ` - ${memory.content.text}`).join('\n');
 
-  const context = tokenSymbolTemplate
-    .replace('{{token}}', token)
-    .replace('{{knowledge}}', knowledge);
+    const context = tokenSymbolTemplate
+        .replace('{{token}}', token)
+        .replace('{{knowledge}}', knowledge);
 
-  elizaLogger.log('CONTEXT: ' + context);
+    elizaLogger.log(`CONTEXT: ${context}`);
 
-  const result = await generateObject({
-    runtime,
-    context,
-    modelClass: ModelClass.LARGE,
-    schema: tokenSchema as any, // zod compatibility issue
-  });
+    const result = await generateObject({
+        runtime,
+        context,
+        modelClass: ModelClass.LARGE,
+        schema: tokenSchema as any, // zod compatibility issue
+    });
 
-  if (!isToken(result.object) || !result.object.symbol) {
-    return { name: token, symbol: null };
-  }
+    if (!isToken(result.object) || !result.object.symbol) {
+        return { name: token, symbol: null };
+    }
 
-  return { name: result.object.name, symbol: result.object.symbol.toUpperCase() };
+    return { name: result.object.name, symbol: result.object.symbol.toUpperCase() };
 }
