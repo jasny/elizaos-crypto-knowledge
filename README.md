@@ -1,10 +1,16 @@
 # @elizaos/plugin-token-knowledge
 
-A plugin for Eliza that provides contextual knowledge about cryptocurrencies and tokens using the CoinMarketCap API.
+A plugin for ElizaOS that provides rich, contextual knowledge about cryptocurrencies and tokens using data from the CoinMarketCap API.
+
+Unlike [`@elizaos/plugin-coinmarketcap`](https://github.com/elizaos-plugins/plugin-coinmarketcap), which responds to direct queries with live data, this plugin enriches the agent's long-term memory. It enables more intelligent, context-aware conversations about tokens, prices, and market trends.
 
 ## Features
 
-- ...
+* Periodically loads and caches top tokens from CoinMarketCap
+* Adds token metadata and descriptions to the memory system with embeddings
+* Provides contextual market reports and token summaries
+* Updates global metrics (market cap, volume, dominance) and the Fear & Greed index
+* Enables Eliza agents to reason about tokens even without direct user prompts
 
 ## Installation
 
@@ -14,38 +20,47 @@ npm install @elizaos/plugin-token-knowledge
 
 ## Configuration
 
-1. Get your API key from [CoinMarketCap](https://pro.coinmarketcap.com)
+1. **Get a CoinMarketCap API key**
+   Sign up at [pro.coinmarketcap.com](https://pro.coinmarketcap.com) and get your API key.
 
-2. Set up your environment variables:
+2. **Set environment variables**
+   Create a `.env` file or set the variables in your environment:
 
-```bash
-COINMARKETCAP_API_KEY=your_api_key
-COINMARKETCAP_API_URL=https://pro-api.coinmarketcap.com
-```
+   ```bash
+   COINMARKETCAP_API_KEY=your_api_key
+   COINMARKETCAP_API_URL=https://pro-api.coinmarketcap.com
+   ```
 
-3. Register the plugin in your Eliza configuration:
+3. **Register the plugin**
 
-```typescript
-import { tokenKnowledgePlugin } from "@elizaos/plugin-token-knowledge";
+   ```ts
+   import { tokenKnowledgePlugin } from "@elizaos/plugin-token-knowledge";
 
-// In your Eliza configuration
-plugins: [
-  tokenKnowledgePlugin,
-    // ... other plugins
-];
-```
+   export const plugins = [
+     tokenKnowledgePlugin,
+     // ... other plugins
+   ];
+   ```
 
-4. Configure your character settings:
+4. **Optional: Character settings**
 
-```json
-{
-  "settings": {
-    "cmc_top": 5000
-  },
-  "plugins": ["token-knowledge"]
-}
+   ```json
+   {
+     "settings": {
+       "cmc_top": 5000
+     },
+     "plugins": ["token-knowledge"]
+   }
+   ```
 
-```
+  * `cmc_top`: Number of top tokens to preload into memory (default: 200)
 
-## Usage
+## How It Differs from `@elizaos/plugin-coinmarketcap`
 
+| Feature                     | `plugin-token-knowledge`              | `plugin-coinmarketcap`                         |
+| --------------------------- |---------------------------------------| ---------------------------------------------- |
+| Data source                 | CoinMarketCap                         | CoinMarketCap                                  |
+| Memory integration          | ✅ Yes (with embeddings)               | ❌ No                                           |
+| Periodic background updates | ✅ Yes (cron)                          | ❌ No                                           |
+| Usage                       | Contextual reasoning, market analysis | Direct Q\&A (e.g., "What's the price of ETH?") |
+| Best suited for             | Knowledgeable agents                  | Reactive tools                                 |
